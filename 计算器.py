@@ -20,9 +20,12 @@ root = tk.Tk()
 root.title("计算器")
 root.resizable(False, False)  # 固定窗口大小
 
+# 设置窗口大小
+root.geometry("470x435")
+
 # 输入框
-entry = tk.Entry(root, width=20, font=('Arial', 16), justify='right')
-entry.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
+entry = tk.Entry(root, width=25, font=('Arial', 24), justify='right')
+entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
 # 按钮布局
 buttons = [
@@ -36,13 +39,13 @@ buttons = [
 # 创建按钮
 for (text, row, col) in buttons:
     if text == '=':
-        btn = tk.Button(root, text=text, width=5, command=calculate)
+        btn = tk.Button(root, text=text, width=10, height=3, command=calculate)
     else:
-        btn = tk.Button(root, text=text, width=5, command=lambda t=text: add_char(t))
-    btn.grid(row=row, column=col, padx=2, pady=2)
+        btn = tk.Button(root, text=text, width=10, height=3, command=lambda t=text: add_char(t))
+    btn.grid(row=row, column=col, padx=5, pady=5)
 
 # 清除按钮
-clear_btn = tk.Button(root, text='C', width=5, command=clear)
-clear_btn.grid(row=5, column=0, columnspan=4, sticky="we", padx=2, pady=2)
+clear_btn = tk.Button(root, text='C', width=40, height=3, command=clear)
+clear_btn.grid(row=5, column=0, columnspan=4, sticky="we", padx=10, pady=10)
 
 root.mainloop()
