@@ -18,7 +18,7 @@ def clear():
 # 创建主窗口
 root = tk.Tk()
 root.title("计算器")
-root.resizable(0, 0)  # type: ignore # 固定窗口大小
+root.resizable(False, False)  # 固定窗口大小
 
 # 输入框
 entry = tk.Entry(root, width=20, font=('Arial', 16), justify='right')
