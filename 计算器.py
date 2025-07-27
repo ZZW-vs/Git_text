@@ -3,17 +3,23 @@ from tkinter import messagebox
 
 def calculate():
     try:
-        result = eval(text.get("1.0", tk.END).strip())
-        text.delete("1.0", tk.END)
-        text.insert(tk.END, str(result))
+        expression = entry.get("1.0", tk.END).strip()
+        result = eval(expression)
+        result_entry.config(state=tk.NORMAL)  # 设置为可编辑状态
+        result_entry.delete("1.0", tk.END)
+        result_entry.insert(tk.END, str(result))
+        result_entry.config(state=tk.DISABLED)  # 设置为不可编辑状态
     except Exception as e:
         messagebox.showerror("错误", "无效的表达式")
 
 def add_char(char):
-    text.insert(tk.END, char)
+    entry.insert(tk.END, char)
 
 def clear():
-    text.delete("1.0", tk.END)
+    entry.delete("1.0", tk.END)
+    result_entry.config(state=tk.NORMAL)  # 设置为可编辑状态
+    result_entry.delete("1.0", tk.END)
+    result_entry.config(state=tk.DISABLED)  # 设置为不可编辑状态
 
 # 创建主窗口
 root = tk.Tk()
@@ -25,16 +31,20 @@ root.geometry("300x400")
 # 设置窗口背景颜色
 root.configure(bg='#F0F0F0')
 
-# 创建一个多行文本框作为输入框
-text = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
-text.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
+# 创建输入框（第一行输入表达式）
+entry = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
+entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
+
+# 创建结果显示框（第二行显示计算结果）
+result_entry = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFE0', relief=tk.SUNKEN, bd=2, state=tk.DISABLED)
+result_entry.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
 # 按钮布局
 buttons = [
-    ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('/', 1, 3),
-    ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('*', 2, 3),
-    ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3),
-    ('0', 4, 0), ('.', 4, 1), ('=', 4, 2), ('+', 4, 3)
+    ('7', 2, 0), ('8', 2, 1), ('9', 2, 2), ('/', 2, 3),
+    ('4', 3, 0), ('5', 3, 1), ('6', 3, 2), ('*', 3, 3),
+    ('1', 4, 0), ('2', 4, 1), ('3', 4, 2), ('-', 4, 3),
+    ('0', 5, 0), ('.', 5, 1), ('=', 5, 2), ('+', 5, 3)
 ]
 
 # 创建按钮
@@ -49,12 +59,13 @@ for (text_button, row, col) in buttons:
 
 # 清除按钮
 clear_btn = tk.Button(root, text='C', width=40, height=2, font=('Arial', 14), bg="#FF8649", fg="#EDEBEB", relief=tk.RAISED, bd=2, command=clear)
-clear_btn.grid(row=5, column=0, columnspan=4, sticky="we", padx=10, pady=5)
+clear_btn.grid(row=6, column=0, columnspan=4, sticky="we", padx=10, pady=5)
 
 # 设置网格的权重，使按钮和输入框在窗口大小改变时能够正确调整大小
-for i in range(6):  # 0到5行
+for i in range(7):  # 0到6行
     root.grid_rowconfigure(i, weight=1)
 for i in range(4):  # 0到3列
     root.grid_columnconfigure(i, weight=1)
 
 root.mainloop()
+
