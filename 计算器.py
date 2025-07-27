@@ -19,12 +19,15 @@ def clear():
 root = tk.Tk()
 root.title("计算器")
 
-# 允许用户自定义窗口大小
-root.resizable(True, True)
+# 设置窗口大小
+root.geometry("300x400")
+
+# 设置窗口背景颜色
+root.configure(bg='#F0F0F0')
 
 # 输入框
-entry = tk.Entry(root, width=20, font=('Arial', 16), justify='right')
-entry.grid(row=0, column=0, columnspan=4, padx=5, pady=5, sticky='we')
+entry = tk.Entry(root, width=20, font=('Arial', 16), justify='right', bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
+entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
 # 按钮布局
 buttons = [
@@ -37,14 +40,16 @@ buttons = [
 # 创建按钮
 for (text, row, col) in buttons:
     if text == '=':
-        btn = tk.Button(root, text=text, width=10, height=2, command=calculate)
+        btn = tk.Button(root, text=text, width=10, height=2, font=('Arial', 14),bg="#FFE344", fg='#000000', relief=tk.RAISED, bd=2, command=calculate)
+    elif text in ['+', '-', '*', '/']:
+        btn = tk.Button(root, text=text, width=10, height=2, font=('Arial', 14),bg="#FFBB3C", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text: add_char(t))
     else:
-        btn = tk.Button(root, text=text, width=10, height=2, command=lambda t=text: add_char(t))
+        btn = tk.Button(root, text=text, width=10, height=2, font=('Arial', 14),bg="#EDEBEB", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text: add_char(t))
     btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
 
 # 清除按钮
-clear_btn = tk.Button(root, text='C', width=40, height=2, command=clear)
-clear_btn.grid(row=5, column=0, columnspan=4, sticky="we", padx=5, pady=5)
+clear_btn = tk.Button(root, text='C', width=40, height=2, font=('Arial', 14),bg="#FF8649", fg="#EDEBEB", relief=tk.RAISED, bd=2, command=clear)
+clear_btn.grid(row=5, column=0, columnspan=4, sticky="we", padx=10, pady=5)
 
 # 设置网格的权重，使按钮和输入框在窗口大小改变时能够正确调整大小
 for i in range(6):  # 0到5行
