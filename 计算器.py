@@ -3,17 +3,17 @@ from tkinter import messagebox
 
 def calculate():
     try:
-        result = eval(entry.get())
-        entry.delete(0, tk.END)
-        entry.insert(tk.END, str(result))
+        result = eval(text.get("1.0", tk.END).strip())
+        text.delete("1.0", tk.END)
+        text.insert(tk.END, str(result))
     except Exception as e:
         messagebox.showerror("错误", "无效的表达式")
 
 def add_char(char):
-    entry.insert(tk.END, char)
+    text.insert(tk.END, char)
 
 def clear():
-    entry.delete(0, tk.END)
+    text.delete("1.0", tk.END)
 
 # 创建主窗口
 root = tk.Tk()
@@ -25,9 +25,9 @@ root.geometry("300x400")
 # 设置窗口背景颜色
 root.configure(bg='#F0F0F0')
 
-# 输入框
-entry = tk.Entry(root, width=20, font=('Arial', 16), justify='right', bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
-entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
+# 创建一个多行文本框作为输入框
+text = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
+text.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
 # 按钮布局
 buttons = [
@@ -38,17 +38,17 @@ buttons = [
 ]
 
 # 创建按钮
-for (text, row, col) in buttons:
-    if text == '=':
-        btn = tk.Button(root, text=text, width=10, height=2, font=('Arial', 14),bg="#FFE344", fg='#000000', relief=tk.RAISED, bd=2, command=calculate)
-    elif text in ['+', '-', '*', '/']:
-        btn = tk.Button(root, text=text, width=10, height=2, font=('Arial', 14),bg="#FFBB3C", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text: add_char(t))
+for (text_button, row, col) in buttons:
+    if text_button == '=':
+        btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg="#FFE344", fg='#000000', relief=tk.RAISED, bd=2, command=calculate)
+    elif text_button in ['+', '-', '*', '/']:
+        btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg="#FFBB3C", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text_button: add_char(t))
     else:
-        btn = tk.Button(root, text=text, width=10, height=2, font=('Arial', 14),bg="#EDEBEB", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text: add_char(t))
+        btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg="#EDEBEB", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text_button: add_char(t))
     btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
 
 # 清除按钮
-clear_btn = tk.Button(root, text='C', width=40, height=2, font=('Arial', 14),bg="#FF8649", fg="#EDEBEB", relief=tk.RAISED, bd=2, command=clear)
+clear_btn = tk.Button(root, text='C', width=40, height=2, font=('Arial', 14), bg="#FF8649", fg="#EDEBEB", relief=tk.RAISED, bd=2, command=clear)
 clear_btn.grid(row=5, column=0, columnspan=4, sticky="we", padx=10, pady=5)
 
 # 设置网格的权重，使按钮和输入框在窗口大小改变时能够正确调整大小
