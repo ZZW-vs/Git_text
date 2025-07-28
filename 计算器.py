@@ -5,10 +5,7 @@ def calculate():
     try:
         expression = entry.get("1.0", tk.END).strip()
         result = eval(expression)
-        result_entry.config(state=tk.NORMAL)  # 设置为可编辑状态
-        result_entry.delete("1.0", tk.END)
-        result_entry.insert(tk.END, str(result))
-        result_entry.config(state=tk.DISABLED)  # 设置为不可编辑状态
+        update_result(result)
     except Exception as e:
         messagebox.showerror("错误", "无效的表达式")
 
@@ -17,25 +14,25 @@ def add_char(char):
 
 def clear():
     entry.delete("1.0", tk.END)
-    result_entry.config(state=tk.NORMAL)  # 设置为可编辑状态
+    update_result('')
+
+def update_result(result):
+    result_entry.config(state=tk.NORMAL)
     result_entry.delete("1.0", tk.END)
-    result_entry.config(state=tk.DISABLED)  # 设置为不可编辑状态
+    result_entry.insert(tk.END, str(result))
+    result_entry.config(state=tk.DISABLED)
 
 # 创建主窗口
 root = tk.Tk()
 root.title("计算器")
-
-# 设置窗口大小
 root.geometry("300x400")
-
-# 设置窗口背景颜色
 root.configure(bg='#F0F0F0')
 
-# 创建输入框（第一行输入表达式）
+# 创建输入框
 entry = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
 entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
-# 创建结果显示框（第二行显示计算结果）
+# 创建结果显示框
 result_entry = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFE0', relief=tk.SUNKEN, bd=2, state=tk.DISABLED)
 result_entry.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
@@ -49,23 +46,19 @@ buttons = [
 
 # 创建按钮
 for (text_button, row, col) in buttons:
-    if text_button == '=':
-        btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg="#FFE344", fg='#000000', relief=tk.RAISED, bd=2, command=calculate)
-    elif text_button in ['+', '-', '*', '/']:
-        btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg="#FFBB3C", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text_button: add_char(t))
-    else:
-        btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg="#EDEBEB", fg='#000000', relief=tk.RAISED, bd=2, command=lambda t=text_button: add_char(t))
+    command = calculate if text_button == '=' else lambda t=text_button: add_char(t)
+    bg_color = "#FFE344" if text_button == '=' else "#FFBB3C" if text_button in ['+', '-', '*', '/'] else "#EDEBEB"
+    btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg=bg_color, fg='#000000', relief=tk.RAISED, bd=2, command=command)
     btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
 
 # 清除按钮
 clear_btn = tk.Button(root, text='C', width=40, height=2, font=('Arial', 14), bg="#FF8649", fg="#EDEBEB", relief=tk.RAISED, bd=2, command=clear)
 clear_btn.grid(row=6, column=0, columnspan=4, sticky="we", padx=10, pady=5)
 
-# 设置网格的权重，使按钮和输入框在窗口大小改变时能够正确调整大小
-for i in range(7):  # 0到6行
+# 设置网格的权重
+for i in range(7):
     root.grid_rowconfigure(i, weight=1)
-for i in range(4):  # 0到3列
+for i in range(4):
     root.grid_columnconfigure(i, weight=1)
 
 root.mainloop()
-
