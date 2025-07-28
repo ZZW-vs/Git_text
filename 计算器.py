@@ -30,11 +30,11 @@ root.geometry("300x400")
 root.configure(bg='#F0F0F0')
 
 # 创建输入框
-entry = tk.Text(root, height=1, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
+entry = tk.Text(root, height=1, width=20, font=('Arial', 24), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
 entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
 # 创建结果显示框
-result_entry = tk.Text(root, height=1, width=20, font=('Arial', 16), bg='#FFFFE0', relief=tk.SUNKEN, bd=2, state=tk.DISABLED)
+result_entry = tk.Text(root, height=1, width=20, font=('Arial', 24), bg='#FFFFE0', relief=tk.SUNKEN, bd=2, state=tk.DISABLED)
 result_entry.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
 # 使用 ttk.Style 创建自定义样式
