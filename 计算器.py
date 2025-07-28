@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import tkinter.ttk as ttk
 
 def calculate():
     try:
@@ -29,12 +30,17 @@ root.geometry("300x400")
 root.configure(bg='#F0F0F0')
 
 # 创建输入框
-entry = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
+entry = tk.Text(root, height=1, width=20, font=('Arial', 16), bg='#FFFFFF', relief=tk.SUNKEN, bd=2)
 entry.grid(row=0, column=0, columnspan=4, padx=10, pady=10, sticky='we')
 
 # 创建结果显示框
-result_entry = tk.Text(root, height=2, width=20, font=('Arial', 16), bg='#FFFFE0', relief=tk.SUNKEN, bd=2, state=tk.DISABLED)
+result_entry = tk.Text(root, height=1, width=20, font=('Arial', 16), bg='#FFFFE0', relief=tk.SUNKEN, bd=2, state=tk.DISABLED)
 result_entry.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky='we')
+
+# 使用 ttk.Style 创建自定义样式
+style = ttk.Style()
+style.configure('Rounded.TButton', relief=tk.FLAT, background="#EDEBEB", borderwidth=5, padding=5)
+style.map('Rounded.TButton', background=[('active', "#FFBB3C"), ('pressed', "#FFE344")])
 
 # 按钮布局
 buttons = [
@@ -48,11 +54,11 @@ buttons = [
 for (text_button, row, col) in buttons:
     command = calculate if text_button == '=' else lambda t=text_button: add_char(t)
     bg_color = "#FFE344" if text_button == '=' else "#FFBB3C" if text_button in ['+', '-', '*', '/'] else "#EDEBEB"
-    btn = tk.Button(root, text=text_button, width=10, height=2, font=('Arial', 14), bg=bg_color, fg='#000000', relief=tk.RAISED, bd=2, command=command)
+    btn = ttk.Button(root, text=text_button, width=10, style='Rounded.TButton', command=command)
     btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
 
 # 清除按钮
-clear_btn = tk.Button(root, text='C', width=40, height=2, font=('Arial', 14), bg="#FF8649", fg="#EDEBEB", relief=tk.RAISED, bd=2, command=clear)
+clear_btn = ttk.Button(root, text='C', width=40, style='Rounded.TButton', command=clear)
 clear_btn.grid(row=6, column=0, columnspan=4, sticky="we", padx=10, pady=5)
 
 # 设置网格的权重
