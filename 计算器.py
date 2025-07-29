@@ -6,16 +6,15 @@ def calculate():
     try:
         expression = entry.get("1.0", tk.END).strip()
         result = eval(expression)
-        result_entry.config(text=str(result))
-    except SyntaxError:
-        messagebox.showerror("语法错误", "无效的表达式")
-    except ZeroDivisionError:
-        messagebox.showerror("零除错误", "不能除以零")
+        result_var.set(str(result))
+    except (SyntaxError, ZeroDivisionError) as e:
+        messagebox.showerror("错误", f"无效的表达式或除以零: {str(e)}")
+        clear_entry()
     except Exception as e:
         messagebox.showerror("错误", f"发生了一个错误: {str(e)}")
+        clear_entry()
 
 def add_char(char):
-    # 将“×”和“÷”替换为“*”和“/”
     entry.insert(tk.END, char.replace('×', '*').replace('÷', '/'))
 
 def clear_entry():
@@ -23,26 +22,33 @@ def clear_entry():
 
 def clear_everything():
     clear_entry()
-    result_entry.config(text="0")
+    result_var.set("0")
 
 def delete_last_char():
     entry.delete('end-2c', tk.END)
 
+def resize_font(event):
+    # 使用更平滑的字体大小调整逻辑
+    new_size = min(max(int(event.height / 10), 16), 24)  # 确保字体大小在16到24之间
+    style.configure('Rounded.TButton', font=('Arial', new_size))
+    style.configure('Blue.TButton', font=('Arial', new_size))
+    result_entry.config(font=('Arial', new_size * 2, 'bold'))  # 调整结果标签的字体大小
+
 # 创建主窗口
 root = tk.Tk()
 root.title("计算器")
-root.geometry("600x650")
+root.geometry("600x650")  # 设置初始窗口大小
 root.configure(bg='#ffffff')
 
 # 创建算式输入框
-entry = tk.Text(root, height=1, width=15, font=('Arial', 26), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
+entry = tk.Text(root, height=1, font=('Arial', 26), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
 entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky='we')
 entry.focus_set()
 
 # 创建结果显示框
-result_entry = tk.Label(root, height=1, width=15, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', anchor='e')
-result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we', ipadx=20)
-result_entry.config(text="0")
+result_var = tk.StringVar(value="0")
+result_entry = tk.Label(root, height=1, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', anchor='e', textvariable=result_var)
+result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we')
 
 # 定义按钮命令映射
 button_commands = {
@@ -78,7 +84,7 @@ buttons = [
 ]
 
 # 创建按钮
-for (text_button, row, col) in buttons:
+for text_button, row, col in buttons:
     command = button_commands.get(text_button, lambda t=text_button: add_char(t))
     btn_style = 'Blue.TButton' if text_button == '=' else 'Rounded.TButton'
     btn = ttk.Button(root, text=text_button, style=btn_style, command=command)
@@ -89,5 +95,17 @@ for i in range(7):
     root.grid_rowconfigure(i, weight=1)
 for i in range(4):  # 只需要设置到第4列
     root.grid_columnconfigure(i, weight=1)
+
+# 防抖动机制
+resize_timer = None
+
+def resize_debounced(event):
+    global resize_timer
+    if resize_timer:
+        root.after_cancel(resize_timer)
+    resize_timer = root.after(100, lambda: resize_font(event))
+
+# 监听窗口大小变化事件
+root.bind('<Configure>', resize_debounced)
 
 root.mainloop()
