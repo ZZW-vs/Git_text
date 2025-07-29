@@ -25,7 +25,6 @@ def add_char(char):
         char = '/'
     entry.insert(tk.END, char)
 
-
 def clear_entry():
     entry.delete("1.0", tk.END)
 
@@ -89,15 +88,15 @@ root.title("计算器")
 root.geometry("400x600")
 root.configure(bg='#ffffff')
 
+# 创建算式输入框
+entry = tk.Text(root, height=1, width=15, font=('Arial', 24), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
+entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky='we')
+entry.focus_set()
+
 # 创建结果显示框
 result_entry = tk.Text(root, height=1, width=15, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0, state=tk.DISABLED, wrap=tk.NONE)
-result_entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky='e', ipadx=20)
+result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='e', ipadx=20)
 result_entry.insert(tk.END, "0")
-
-# 创建输入框
-entry = tk.Text(root, height=1, width=15, font=('Arial', 24), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
-entry.grid(row=1, column=0, columnspan=4, padx=20, pady=10, sticky='we')
-entry.focus_set()
 
 # 按钮命令映射
 button_commands = {
@@ -123,22 +122,19 @@ style.map('Blue.TButton', background=[('active', "#005c99")])
 # 定义按钮布局
 buttons = [
     # 第一排
-    ('MC', 2, 0), ('MR', 2, 1), ('M+', 2, 2), ('M-', 2, 3), ('MS', 2, 4),
+    ('CE', 2, 0), ('C', 2, 1), ('DEL', 2, 2), ('+', 2, 3),
     
     # 第二排
-    ('CE', 3, 0), ('C', 3, 1), ('DEL', 3, 2), ('+', 3, 3),
+    ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('-', 3, 3),
     
     # 第三排
-    ('7', 4, 0), ('8', 4, 1), ('9', 4, 2), ('-', 4, 3),
+    ('4', 4, 0), ('5', 4, 1), ('6', 4, 2), ('×', 4, 3),
     
     # 第四排
-    ('4', 5, 0), ('5', 5, 1), ('6', 5, 2), ('×', 5, 3),
+    ('1', 5, 0), ('2', 5, 1), ('3', 5, 2), ('÷', 5, 3),
     
     # 第五排
-    ('1', 6, 0), ('2', 6, 1), ('3', 6, 2), ('÷', 6, 3),
-    
-    # 第六排
-    ('0', 7, 0), ('.', 7, 1), ('=', 7, 2)
+    ('0', 6, 0), ('.', 6, 1), ('=', 6, 2)
 ]
 
 # 创建按钮
@@ -149,7 +145,7 @@ for (text_button, row, col) in buttons:
     btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew', ipadx=20, ipady=20)
 
 # 设置网格的权重
-for i in range(8):
+for i in range(7):
     root.grid_rowconfigure(i, weight=1)
 for i in range(4):  # 只需要设置到第4列
     root.grid_columnconfigure(i, weight=1)
