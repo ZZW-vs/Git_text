@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-import tkinter.ttk as ttk
+from tkinter import ttk
 
 def calculate():
     try:
@@ -18,7 +18,6 @@ def add_char(char):
 
 def clear_entry():
     entry.delete("1.0", tk.END)
-    entry.insert(tk.END, "")  # 重新设置光标位置
 
 def clear_everything():
     entry.delete("1.0", tk.END)
@@ -31,16 +30,13 @@ def delete_last_char():
     entry.delete('end-2c', tk.END)
 
 def toggle_sign():
-    entry.delete("1.0", tk.END)
     try:
         num = float(result_entry.get("1.0", tk.END))
         num = -num
+        entry.delete("1.0", tk.END)
         entry.insert(tk.END, str(num))
     except:
-        entry.insert(tk.END, "")
-
-def memory_clear():
-    memory.clear()
+        entry.delete("1.0", tk.END)
 
 memory = []
 
@@ -53,15 +49,27 @@ root.configure(bg='#ffffff')
 # 创建结果显示框
 result_entry = tk.Text(root, height=1, width=15, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0, state=tk.DISABLED, wrap=tk.NONE)
 result_entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky='e', ipadx=20)
+result_entry.insert(tk.END, "0")
 
 # 创建输入框
 entry = tk.Text(root, height=1, width=15, font=('Arial', 24), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
 entry.grid(row=1, column=0, columnspan=4, padx=20, pady=10, sticky='we')
+entry.focus_set()
+
+# 按钮命令映射
+button_commands = {
+    '=': calculate,
+    'C': clear_entry,
+    'CE': clear_everything,
+    'DEL': delete_last_char,
+    '+/-': toggle_sign,
+    'MC': lambda: None  # 示例，需要实现记忆功能
+}
 
 # 创建按钮样式
 style = ttk.Style()
-style.configure('Rounded.TButton', relief=tk.FLAT, background="#f0f0f0", font=('Arial', 16), borderwidth=1, bd=1, padding=10)
-style.configure('Blue.TButton', relief=tk.FLAT, background="#007acc", font=('Arial', 16), borderwidth=1, bd=1, padding=10)
+style.configure('Rounded.TButton', relief=tk.FLAT, background="#f0f0f0", font=('Arial', 16), borderwidth=1, padding=10, highlightbackground="#d3d3d3", highlightthickness=1)
+style.configure('Blue.TButton', relief=tk.FLAT, background="#007acc", font=('Arial', 16), borderwidth=1, padding=10, highlightbackground="#d3d3d3", highlightthickness=1)
 style.map('Rounded.TButton', background=[('active', "#e0e0e0")])
 style.map('Blue.TButton', background=[('active', "#005c99")])
 
@@ -88,39 +96,15 @@ buttons = [
 
 # 创建按钮
 for (text_button, row, col) in buttons:
-    if text_button == '=':
-        command = calculate
-    elif text_button == 'C':
-        command = clear_entry
-    elif text_button == 'CE':
-        command = clear_everything
-    elif text_button == 'DEL':
-        command = delete_last_char
-    elif text_button == '+/-':
-        command = toggle_sign
-    elif text_button == 'MC':
-        command = memory_clear
-    else:
-        command = lambda t=text_button: add_char(t)
-    if text_button == '=':
-        btn = ttk.Button(root, text=text_button, style='Blue.TButton', command=command)
-    else:
-        btn = ttk.Button(root, text=text_button, style='Rounded.TButton', command=command)
-    btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew')
+    command = button_commands.get(text_button, lambda t=text_button: add_char(t))
+    btn_style = 'Blue.TButton' if text_button == '=' else 'Rounded.TButton'
+    btn = ttk.Button(root, text=text_button, style=btn_style, command=command)
+    btn.grid(row=row, column=col, padx=5, pady=5, sticky='nsew', ipadx=20, ipady=20)
 
 # 设置网格的权重
 for i in range(8):
     root.grid_rowconfigure(i, weight=1)
-for i in range(6):
+for i in range(4):  # 只需要设置到第4列
     root.grid_columnconfigure(i, weight=1)
-
-# 设置输入区域和结果显示区域的背景透明
-result_entry.config(state=tk.NORMAL)
-result_entry.insert(tk.END, "0")
-result_entry.config(state=tk.DISABLED)
-
-# 设置光标初始位置在输入框
-entry.insert(tk.END, "")
-entry.focus_set()
 
 root.mainloop()
