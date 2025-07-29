@@ -16,65 +16,17 @@ def calculate():
 
 def add_char(char):
     # 将“×”和“÷”替换为“*”和“/”
-    if char == '×':
-        char = '*'
-    elif char == '÷':
-        char = '/'
-    entry.insert(tk.END, char)
+    entry.insert(tk.END, char.replace('×', '*').replace('÷', '/'))
 
 def clear_entry():
     entry.delete("1.0", tk.END)
 
 def clear_everything():
-    entry.delete("1.0", tk.END)
+    clear_entry()
     result_entry.config(text="0")
 
 def delete_last_char():
     entry.delete('end-2c', tk.END)
-
-def toggle_sign():
-    try:
-        num = float(entry.get("1.0", tk.END))
-        num = -num
-        entry.delete("1.0", tk.END)
-        entry.insert(tk.END, str(num))
-    except:
-        entry.delete("1.0", tk.END)
-
-def memory_store():
-    try:
-        expression = entry.get("1.0", tk.END).strip()
-        result = eval(expression)
-        memory.append(result)
-    except Exception as e:
-        messagebox.showerror("错误", f"无法存储结果: {str(e)}")
-
-def memory_recall():
-    if memory:
-        entry.insert(tk.END, str(memory[-1]))
-    else:
-        messagebox.showwarning("警告", "没有存储的记忆")
-
-def memory_clear():
-    memory.clear()
-
-def memory_add():
-    try:
-        expression = entry.get("1.0", tk.END).strip()
-        result = eval(expression)
-        memory[-1] += result
-    except Exception as e:
-        messagebox.showerror("错误", f"无法添加到记忆: {str(e)}")
-
-def memory_subtract():
-    try:
-        expression = entry.get("1.0", tk.END).strip()
-        result = eval(expression)
-        memory[-1] -= result
-    except Exception as e:
-        messagebox.showerror("错误", f"无法从记忆中减去: {str(e)}")
-
-memory = []
 
 # 创建主窗口
 root = tk.Tk()
@@ -92,18 +44,12 @@ result_entry = tk.Label(root, height=1, width=15, font=('Arial', 40, 'bold'), bg
 result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we', ipadx=20)
 result_entry.config(text="0")
 
-# 按钮命令映射
+# 定义按钮命令映射
 button_commands = {
     '=': calculate,
     'C': clear_entry,
     'CE': clear_everything,
-    'DEL': delete_last_char,
-    '+/-': toggle_sign,
-    'MS': memory_store,
-    'MR': memory_recall,
-    'MC': memory_clear,
-    'M+': memory_add,
-    'M-': memory_subtract
+    'DEL': delete_last_char
 }
 
 # 创建按钮样式
