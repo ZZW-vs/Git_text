@@ -18,7 +18,13 @@ def calculate():
         messagebox.showerror("错误", f"发生了一个错误: {str(e)}")
 
 def add_char(char):
+    # 将“×”和“÷”替换为“*”和“/”
+    if char == '×':
+        char = '*'
+    elif char == '÷':
+        char = '/'
     entry.insert(tk.END, char)
+
 
 def clear_entry():
     entry.delete("1.0", tk.END)
