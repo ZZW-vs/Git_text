@@ -10,8 +10,12 @@ def calculate():
         result_entry.delete("1.0", tk.END)
         result_entry.insert(tk.END, str(result))
         result_entry.config(state=tk.DISABLED)
+    except SyntaxError:
+        messagebox.showerror("语法错误", "无效的表达式")
+    except ZeroDivisionError:
+        messagebox.showerror("零除错误", "不能除以零")
     except Exception as e:
-        messagebox.showerror("错误", "无效的表达式")
+        messagebox.showerror("错误", f"发生了一个错误: {str(e)}")
 
 def add_char(char):
     entry.insert(tk.END, char)
@@ -31,12 +35,45 @@ def delete_last_char():
 
 def toggle_sign():
     try:
-        num = float(result_entry.get("1.0", tk.END))
+        num = float(entry.get("1.0", tk.END))
         num = -num
         entry.delete("1.0", tk.END)
         entry.insert(tk.END, str(num))
     except:
         entry.delete("1.0", tk.END)
+
+def memory_store():
+    try:
+        expression = entry.get("1.0", tk.END).strip()
+        result = eval(expression)
+        memory.append(result)
+    except Exception as e:
+        messagebox.showerror("错误", f"无法存储结果: {str(e)}")
+
+def memory_recall():
+    if memory:
+        entry.insert(tk.END, str(memory[-1]))
+    else:
+        messagebox.showwarning("警告", "没有存储的记忆")
+
+def memory_clear():
+    memory.clear()
+
+def memory_add():
+    try:
+        expression = entry.get("1.0", tk.END).strip()
+        result = eval(expression)
+        memory[-1] += result
+    except Exception as e:
+        messagebox.showerror("错误", f"无法添加到记忆: {str(e)}")
+
+def memory_subtract():
+    try:
+        expression = entry.get("1.0", tk.END).strip()
+        result = eval(expression)
+        memory[-1] -= result
+    except Exception as e:
+        messagebox.showerror("错误", f"无法从记忆中减去: {str(e)}")
 
 memory = []
 
@@ -63,7 +100,11 @@ button_commands = {
     'CE': clear_everything,
     'DEL': delete_last_char,
     '+/-': toggle_sign,
-    'MC': lambda: None  # 示例，需要实现记忆功能
+    'MS': memory_store,
+    'MR': memory_recall,
+    'MC': memory_clear,
+    'M+': memory_add,
+    'M-': memory_subtract
 }
 
 # 创建按钮样式
@@ -76,22 +117,22 @@ style.map('Blue.TButton', background=[('active', "#005c99")])
 # 定义按钮布局
 buttons = [
     # 第一排
-    ('MC', 2, 0), ('MR', 2, 1), ('M+', 2, 2), ('M-', 2, 3), ('MS', 2, 4), ('M-', 2, 5),
+    ('MC', 2, 0), ('MR', 2, 1), ('M+', 2, 2), ('M-', 2, 3), ('MS', 2, 4),
     
     # 第二排
-    ('%', 3, 0), ('CE', 3, 1), ('C', 3, 2), ('1/x', 3, 3), ('x²', 3, 4), ('√x', 3, 5), ('÷', 3, 6),
+    ('CE', 3, 0), ('C', 3, 1), ('DEL', 3, 2), ('+', 3, 3),
     
     # 第三排
-    ('7', 4, 0), ('8', 4, 1), ('9', 4, 2), ('×', 4, 3),
+    ('7', 4, 0), ('8', 4, 1), ('9', 4, 2), ('-', 4, 3),
     
     # 第四排
-    ('4', 5, 0), ('5', 5, 1), ('6', 5, 2), ('-', 5, 3),
+    ('4', 5, 0), ('5', 5, 1), ('6', 5, 2), ('×', 5, 3),
     
     # 第五排
-    ('1', 6, 0), ('2', 6, 1), ('3', 6, 2), ('+', 6, 3),
+    ('1', 6, 0), ('2', 6, 1), ('3', 6, 2), ('÷', 6, 3),
     
     # 第六排
-    ('+/-', 7, 0), ('0', 7, 1), ('.', 7, 2), ('=', 7, 3)
+    ('0', 7, 0), ('.', 7, 1), ('=', 7, 2)
 ]
 
 # 创建按钮
