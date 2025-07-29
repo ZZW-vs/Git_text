@@ -6,10 +6,7 @@ def calculate():
     try:
         expression = entry.get("1.0", tk.END).strip()
         result = eval(expression)
-        result_entry.config(state=tk.NORMAL)
-        result_entry.delete("1.0", tk.END)
-        result_entry.insert(tk.END, str(result))
-        result_entry.config(state=tk.DISABLED)
+        result_entry.config(text=str(result))
     except SyntaxError:
         messagebox.showerror("语法错误", "无效的表达式")
     except ZeroDivisionError:
@@ -30,10 +27,7 @@ def clear_entry():
 
 def clear_everything():
     entry.delete("1.0", tk.END)
-    result_entry.config(state=tk.NORMAL)
-    result_entry.delete("1.0", tk.END)
-    result_entry.insert(tk.END, "0")
-    result_entry.config(state=tk.DISABLED)
+    result_entry.config(text="0")
 
 def delete_last_char():
     entry.delete('end-2c', tk.END)
@@ -85,18 +79,18 @@ memory = []
 # 创建主窗口
 root = tk.Tk()
 root.title("计算器")
-root.geometry("400x600")
+root.geometry("600x650")
 root.configure(bg='#ffffff')
 
 # 创建算式输入框
-entry = tk.Text(root, height=1, width=15, font=('Arial', 24), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
+entry = tk.Text(root, height=1, width=15, font=('Arial', 26), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
 entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky='we')
 entry.focus_set()
 
 # 创建结果显示框
-result_entry = tk.Text(root, height=1, width=15, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0, state=tk.DISABLED, wrap=tk.NONE)
-result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='e', ipadx=20)
-result_entry.insert(tk.END, "0")
+result_entry = tk.Label(root, height=1, width=15, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', anchor='e')
+result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we', ipadx=20)
+result_entry.config(text="0")
 
 # 按钮命令映射
 button_commands = {
