@@ -17,6 +17,9 @@ def clear():
     entry.delete("1.0", tk.END)
     update_result('')
 
+def delete_last_char():
+    entry.delete('end-2c', tk.END)
+
 def update_result(result):
     result_entry.config(state=tk.NORMAL)
     result_entry.delete("1.0", tk.END)
@@ -55,7 +58,14 @@ buttons = [
 
 # 创建按钮
 for (text_button, row, col) in buttons:
-    command = calculate if text_button == '=' else clear if text_button == 'C' else lambda t=text_button: add_char(t)
+    if text_button == '=':
+        command = calculate
+    elif text_button == 'C':
+        command = clear
+    elif text_button == 'DEL':
+        command = delete_last_char
+    else:
+        command = lambda t=text_button: add_char(t)
     btn = ttk.Button(root, text=text_button, style='Rounded.TButton', command=command)
     btn.grid(row=row, column=col, padx=15, pady=15, sticky='nsew')
 
