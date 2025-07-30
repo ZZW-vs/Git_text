@@ -1,0 +1,45 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# 创建主窗口
+root = tk.Tk()
+root.title("计算器")
+root.geometry("600x650")
+root.configure(bg='#ffffff')
+
+# 创建算式输入框
+entry = tk.Text(root, height=1, font=('Arial', 26), bg='#ffffff', fg='#000000', relief=tk.FLAT, bd=0)
+entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky='we')
+entry.focus_set()
+
+# 创建结果显示框
+result_var = tk.StringVar(value="0")
+result_entry = tk.Label(root, height=1, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', anchor='e', textvariable=result_var)
+result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we')
+
+
+
+def calculate():
+    try:
+        expression = entry.get("1.0", tk.END).strip()
+        result = eval(expression)
+        result_var.set(str(result))
+    except (SyntaxError, ZeroDivisionError) as e:
+        messagebox.showerror("错误", f"无效的表达式或除以零: {str(e)}")
+        clear_entry()
+    except Exception as e:
+        messagebox.showerror("错误", f"发生了一个错误: {str(e)}")
+        clear_entry()
+
+def add_char(char):
+    entry.insert(tk.END, char.replace('×', '*').replace('÷', '/'))
+
+def clear_entry():
+    entry.delete("1.0", tk.END)
+
+def clear_everything():
+    clear_entry()
+    result_var.set("0")
+
+def delete_last_char():
+    entry.delete('end-2c', tk.END)
