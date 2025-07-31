@@ -15,24 +15,21 @@ def create_text_entry(root):
     return entry
 
 def create_result_label(root, result_var):
-    result_entry = tk.Label(root, height=1, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', anchor='e', textvariable=result_var)
-    result_entry.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we')
-    return result_entry
+    result_label = tk.Label(root, height=1, font=('Arial', 40, 'bold'), bg='#ffffff', fg='#000000', anchor='e', textvariable=result_var)
+    result_label.grid(row=1, column=0, columnspan=4, padx=20, pady=(10, 20), sticky='we')
+    return result_label
 
-def calculate(entry, result_var):
+def calculate(expression, result_var):
     try:
-        expression = entry.get("1.0", tk.END).strip()
-        result = eval(expression)
+        result = eval(expression.strip().replace('×', '*').replace('÷', '/'))
         result_var.set(str(result))
-    except (SyntaxError, ZeroDivisionError) as e:
-        messagebox.showerror("错误", f"无效的表达式或除以零: {str(e)}")
-        clear_entry(entry)
+    except (SyntaxError, ZeroDivisionError):
+        messagebox.showerror("错误", "无效的表达式或除以零")
     except Exception as e:
         messagebox.showerror("错误", f"发生了一个错误: {str(e)}")
-        clear_entry(entry)
 
 def add_char(entry, char):
-    entry.insert(tk.END, char.replace('×', '*').replace('÷', '/'))
+    entry.insert(tk.END, char)
 
 def clear_entry(entry):
     entry.delete("1.0", tk.END)
@@ -40,6 +37,6 @@ def clear_entry(entry):
 def clear_everything(entry, result_var):
     clear_entry(entry)
     result_var.set("0")
-
+    
 def delete_last_char(entry):
     entry.delete('end-2c', tk.END)
