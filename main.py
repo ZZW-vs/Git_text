@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from other import create_root_window, create_text_entry, create_result_label, add_char, clear_entry, clear_everything, delete_last_char
+from other import create_root_window, create_text_entry, create_result_label, add_char, clear_entry, clear_everything, delete_last_char, sqrt, power, sin, cos, tan
 
 class Calculator:
     def __init__(self, root):
@@ -27,11 +27,12 @@ class Calculator:
 
     def define_buttons(self):
         return [
-            ('CE', 2, 0), ('C', 2, 1), ('DEL', 2, 2), ('+', 2, 3),
-            ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('-', 3, 3),
-            ('4', 4, 0), ('5', 4, 1), ('6', 4, 2), ('×', 4, 3),
-            ('1', 5, 0), ('2', 5, 1), ('3', 5, 2), ('÷', 5, 3),
-            ('0', 6, 0), ('.', 6, 1), ('=', 6, 2, 2)
+            ('CE', 2, 0), ('C', 2, 1), ('DEL', 2, 2), ('+', 2, 3), ('^', 2, 4),
+            ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('-', 3, 3), ('√', 3, 4),
+            ('4', 4, 0), ('5', 4, 1), ('6', 4, 2), ('×', 4, 3), ('sin', 4, 4),
+            ('1', 5, 0), ('2', 5, 1), ('3', 5, 2), ('÷', 5, 3), ('cos', 5, 4),
+            ('0', 6, 0), ('.', 6, 1), ('=', 6, 2, 2), 
+            ('tan', 6, 4)
         ]
 
     def create_buttons(self):
@@ -47,7 +48,12 @@ class Calculator:
             '=': lambda: self.calculate(self.entry.get("1.0", tk.END)),
             'C': lambda: clear_entry(self.entry),
             'CE': lambda: clear_everything(self.entry, self.result_var),
-            'DEL': lambda: delete_last_char(self.entry)
+            'DEL': lambda: delete_last_char(self.entry),
+            '^': lambda: power(self.entry, self.result_var),
+            '√': lambda: sqrt(self.entry, self.result_var),
+            'sin': lambda: sin(self.entry, self.result_var),
+            'cos': lambda: cos(self.entry, self.result_var),
+            'tan': lambda: tan(self.entry, self.result_var)
         }
         return commands.get(button_text, lambda: add_char(self.entry, button_text))
 
@@ -63,7 +69,7 @@ class Calculator:
     def set_grid_weights(self):
         for i in range(7):
             self.root.grid_rowconfigure(i, weight=1)
-        for i in range(4):
+        for i in range(5):
             self.root.grid_columnconfigure(i, weight=1)
 
     def resize_font(self, event):
