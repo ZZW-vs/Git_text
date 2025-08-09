@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from other import create_root_window, create_text_entry, create_result_label, add_char, clear_entry, clear_everything, delete_last_char, sqrt, power, sin, cos, tan
+from function import create_root_window, create_text_entry, create_result_label, add_char, clear_entry, clear_everything, delete_last_char, sqrt, power, sin, cos, tan
 
 class Calculator:
     def __init__(self, root):
