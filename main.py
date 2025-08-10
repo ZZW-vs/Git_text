@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
-from function import create_root_window, create_text_entry, create_result_label, add_char, clear_entry, clear_everything, delete_last_char, sqrt, power, sin, cos, tan
+from function import *
+from functools import partial
 
 class Calculator:
     def __init__(self, root):
@@ -18,9 +18,10 @@ class Calculator:
         self.bind_events()
 
     def configure_styles(self):
-        self.style.configure('Rounded.TButton', relief=tk.FLAT, background="#f0f0f0", font=('Arial', 16), borderwidth=1, padding=10, highlightbackground="#d3d3d3", highlightthickness=1)
-        self.style.configure('Blue.TButton', relief=tk.FLAT, background="#007acc", font=('Arial', 16), borderwidth=1, padding=10, highlightbackground="#d3d3d3", highlightthickness=1)
-        self.style.configure('Orange.TButton', relief=tk.FLAT, background="#FFA07A", font=('Arial', 16), borderwidth=1, padding=10, highlightbackground="#d3d3d3", highlightthickness=1)
+        self.style.theme_use('clam')  # 使用clam主题作为基础
+        self.style.configure('Rounded.TButton', relief=tk.RAISED, background="#f0f0f0", font=('Segoe UI', 16), borderwidth=0, padding=10, highlightbackground="#d3d3d3", highlightthickness=1)
+        self.style.configure('Blue.TButton', relief=tk.RAISED, background="#007acc", font=('Segoe UI', 16), borderwidth=0, padding=10, foreground="white", highlightbackground="#d3d3d3", highlightthickness=1)
+        self.style.configure('Orange.TButton', relief=tk.RAISED, background="#FFA07A", font=('Segoe UI', 16), borderwidth=0, padding=10, foreground="white", highlightbackground="#d3d3d3", highlightthickness=1)
         self.style.map('Rounded.TButton', background=[('active', "#e0e0e0")])
         self.style.map('Blue.TButton', background=[('active', "#005c99")])
         self.style.map('Orange.TButton', background=[('active', "#FF8C69")])
@@ -31,7 +32,7 @@ class Calculator:
             ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('-', 3, 3), ('√', 3, 4),
             ('4', 4, 0), ('5', 4, 1), ('6', 4, 2), ('×', 4, 3), ('sin', 4, 4),
             ('1', 5, 0), ('2', 5, 1), ('3', 5, 2), ('÷', 5, 3), ('cos', 5, 4),
-            ('0', 6, 0), ('.', 6, 1), ('=', 6, 2, 2), 
+            ('0', 6, 0), ('.', 6, 1), ('=', 6, 2, 2),
             ('tan', 6, 4)
         ]
 
@@ -45,26 +46,21 @@ class Calculator:
 
     def get_button_command(self, button_text):
         commands = {
-            '=': lambda: self.calculate(self.entry.get("1.0", tk.END)),
-            'C': lambda: clear_entry(self.entry),
-            'CE': lambda: clear_everything(self.entry, self.result_var),
-            'DEL': lambda: delete_last_char(self.entry),
-            '^': lambda: power(self.entry, self.result_var),
-            '√': lambda: sqrt(self.entry, self.result_var),
-            'sin': lambda: sin(self.entry, self.result_var),
-            'cos': lambda: cos(self.entry, self.result_var),
-            'tan': lambda: tan(self.entry, self.result_var)
+            '=': partial(self.calculate, self.entry.get),
+            'C': partial(clear_entry, self.entry),
+            'CE': partial(clear_everything, self.entry, self.result_var),
+            'DEL': partial(delete_last_char, self.entry),
+            '^': partial(power, self.entry, self.result_var),
+            '√': partial(sqrt, self.entry, self.result_var),
+            'sin': partial(sin, self.entry, self.result_var),
+            'cos': partial(cos, self.entry, self.result_var),
+            'tan': partial(tan, self.entry, self.result_var)
         }
-        return commands.get(button_text, lambda: add_char(self.entry, button_text))
+        return commands.get(button_text, partial(add_char, self.entry, button_text))
 
-    def calculate(self, expression):
-        try:
-            result = eval(expression.strip().replace('×', '*').replace('÷', '/'))
-            self.result_var.set(str(result))
-        except (SyntaxError, ZeroDivisionError):
-            messagebox.showerror("错误", "无效的表达式或除以零")
-        except Exception as e:
-            messagebox.showerror("错误", f"发生了一个错误: {str(e)}")
+    def calculate(self, get_expression):
+        expression = get_expression()
+        calculate(expression.strip().replace('×', '*').replace('÷', '/').replace('^', '**'), self.result_var)
 
     def set_grid_weights(self):
         for i in range(7):
@@ -74,10 +70,10 @@ class Calculator:
 
     def resize_font(self, event):
         new_size = min(max(int(event.height / 10), 16), 24)
-        self.style.configure('Rounded.TButton', font=('Arial', new_size))
-        self.style.configure('Blue.TButton', font=('Arial', new_size))
-        self.style.configure('Orange.TButton', font=('Arial', new_size))
-        self.result_label.config(font=('Arial', new_size * 2, 'bold'))
+        self.style.configure('Rounded.TButton', font=('Segoe UI', new_size))
+        self.style.configure('Blue.TButton', font=('Segoe UI', new_size))
+        self.style.configure('Orange.TButton', font=('Segoe UI', new_size))
+        self.result_label.config(font=('Segoe UI', new_size * 2, 'bold'))
 
     def resize_debounced(self, event):
         if self.resize_timer:
