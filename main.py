@@ -15,10 +15,29 @@ class Calculator:
         self.create_buttons()
         self.set_grid_weights()
         self.resize_timer = None
+        self.original_result = None  # 存储原始计算结果
         self.bind_events()
+        self.setup_hover_events()
+
+    def setup_hover_events(self):
+        self.result_label.bind("<Enter>", self.on_result_hover)
+        self.result_label.bind("<Leave>", self.on_result_leave)
+
+    def on_result_hover(self, event):
+        if self.original_result is not None:
+            self.result_var.set(str(self.original_result))
+
+    def on_result_leave(self, event):
+        if self.original_result is not None:
+            self.functions.format_result(self.original_result, 10, self.result_var)
 
     def configure_styles(self):
-        self.functions.configure_styles(self.style)
+        # 定义默认按钮的样式
+        self.style.configure('Rounded.TButton', foreground='#333333')  # 设置默认按钮的文本颜色为深灰色
+        # 定义蓝色按钮的样式
+        self.style.configure('Blue.TButton', foreground='#333333')  # 设置蓝色按钮的文本颜色为深灰色
+        # 定义橙色按钮的样式
+        self.style.configure('Orange.TButton', foreground='#333333')  # 设置橙色按钮的文本颜色为深灰色
 
     def define_buttons(self):
         return [
@@ -26,39 +45,46 @@ class Calculator:
             ('7', 3, 0), ('8', 3, 1), ('9', 3, 2), ('-', 3, 3), ('√', 3, 4),
             ('4', 4, 0), ('5', 4, 1), ('6', 4, 2), ('×', 4, 3), ('sin', 4, 4),
             ('1', 5, 0), ('2', 5, 1), ('3', 5, 2), ('÷', 5, 3), ('cos', 5, 4),
-            ('0', 6, 0), ('.', 6, 1), ('=', 6, 2), 
+            ('0', 6, 0), ('.', 6, 1), ('=', 6, 2),
             ('log', 6, 3), ('n!', 6, 4)
         ]
 
     def create_buttons(self):
         commands = {
-            '=': lambda: self.functions.calculate(self.entry.get("1.0", tk.END), self.result_var),
+            '=': lambda: setattr(self, 'original_result', self.functions.calculate(self.entry.get("1.0", tk.END), self.result_var, 10)),
             'C': lambda: self.functions.clear_entry(self.entry),
             'CE': lambda: self.functions.clear_everything(self.entry, self.result_var),
             'DEL': lambda: self.functions.delete_last_char(self.entry),
             '^': lambda: self.functions.add_char(self.entry, '**'),
-            '√': lambda: self.functions.sqrt(self.entry, self.result_var),
-            'sin': lambda: self.functions.sin(self.entry, self.result_var),
-            'cos': lambda: self.functions.cos(self.entry, self.result_var),
-            'tan': lambda: self.functions.tan(self.entry, self.result_var),
-            'log': lambda: self.functions.log(self.entry, self.result_var),
-            'n!': lambda: self.functions.factorial(self.entry, self.result_var)
+            '√': lambda: setattr(self, 'original_result', self.functions.sqrt(self.entry, self.result_var)),
+            'sin': lambda: setattr(self, 'original_result', self.functions.sin(self.entry, self.result_var)),
+            'cos': lambda: setattr(self, 'original_result', self.functions.cos(self.entry, self.result_var)),
+            'tan': lambda: setattr(self, 'original_result', self.functions.tan(self.entry, self.result_var)),
+            'log': lambda: setattr(self, 'original_result', self.functions.log(self.entry, self.result_var)),
+            'n!': lambda: setattr(self, 'original_result', self.functions.factorial(self.entry, self.result_var))
         }
+
         for btn in self.buttons:
             text_button, row, col, *colspan = btn
             colspan = colspan[0] if colspan else 1
-            button = ttk.Button(self.root, 
-                                text=text_button, 
-                                style=self.get_button_style(text_button), 
-                                command=commands.get(text_button, lambda: self.functions.add_char(self.entry, text_button)))
-            button.grid(row=row, 
-                        column=col, 
-                        padx=8, 
-                        pady=8, 
-                        sticky='nsew', 
-                        ipadx=10, 
-                        ipady=15, 
-                        columnspan=colspan)
+            if text_button in commands:
+                button = ttk.Button(self.root,
+                                   text=text_button,
+                                   style=self.get_button_style(text_button),
+                                   command=commands[text_button])
+            else:
+                button = ttk.Button(self.root,
+                                   text=text_button,
+                                   style=self.get_button_style(text_button),
+                                   command=lambda t=text_button: self.functions.add_char(self.entry, t))
+            button.grid(row=row,
+                       column=col,
+                       padx=8,
+                       pady=8,
+                       sticky='nsew',
+                       ipadx=10,
+                       ipady=15,
+                       columnspan=colspan)
 
     def get_button_style(self, button_text):
         if button_text == '=':
