@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 import math
+import subprocess
+import os
 
 class CalculatorFunctions:
     ENTRY_FONT = ('Arial', 26)
@@ -64,7 +66,16 @@ class CalculatorFunctions:
 
     def calculate(self, expression, result_var):
         try:
-            expr = expression.strip().replace('×', '*').replace('÷', '/').replace('^', '**')
+            expr = expression.strip()
+            
+            # 彩蛋检测
+            if expr.lower() == 'tetris':
+                tetris_path = os.path.join(os.path.dirname(__file__), 'other', 'Tetris.py')
+                subprocess.Popen(['python', tetris_path])
+                result_var.set("启动俄罗斯方块!")
+                return
+                
+            expr = expr.replace('×', '*').replace('÷', '/').replace('^', '**')
             result = eval(expr)
             
             if '/' not in expr.replace(' ', '') and (
