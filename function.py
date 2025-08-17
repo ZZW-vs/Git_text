@@ -70,7 +70,7 @@ class CalculatorFunctions:
             
             # 彩蛋检测
             if expr.lower() == 'tetris':
-                tetris_path = os.path.join(os.path.dirname(__file__), 'other', 'Tetris.py')
+                tetris_path = os.path.join(os.path.dirname(__file__), 'Tetris.py')
                 subprocess.Popen(['python', tetris_path])
                 result_var.set("启动俄罗斯方块!")
                 return

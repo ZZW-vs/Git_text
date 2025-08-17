@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 # 初始化
 pygame.init()
@@ -7,15 +8,16 @@ pygame.init()
 # 颜色定义
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
+GRAY = (80, 80, 80)
+BG_COLOR = (20, 20, 40)
 COLORS = [
-    (0, 255, 255),  # I
-    (0, 0, 255),    # J
-    (255, 165, 0),  # L
-    (255, 255, 0),  # O
-    (0, 255, 0),    # S
-    (128, 0, 128),  # T
-    (255, 0, 0)     # Z
+    (30, 215, 230),  # I - 更柔和的青色
+    (30, 90, 210),    # J - 深蓝色
+    (255, 180, 60),   # L - 橙色
+    (255, 225, 60),   # O - 亮黄色
+    (50, 220, 100),   # S - 亮绿色
+    (180, 60, 220),   # T - 紫色
+    (240, 60, 60)     # Z - 红色
 ]
 
 # 游戏设置
@@ -57,8 +59,18 @@ class Tetris:
         self.grid = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
         self.current_piece = self.new_piece()
         self.game_over = False
+        self.game_started = False
+        self.paused = False
         self.score = 0
-        self.font = pygame.font.SysFont('Arial', 25)
+        self.level = 1
+        self.lines_cleared = 0
+        self.font = pygame.font.Font(None, 25)  # 使用pygame默认字体
+        self.big_font = pygame.font.Font(None, 40)  # 使用pygame默认字体
+        # 初始化音效
+        pygame.mixer.init()
+        self.move_sound = pygame.mixer.Sound('move.wav') if os.path.exists('move.wav') else None
+        self.rotate_sound = pygame.mixer.Sound('rotate.wav') if os.path.exists('rotate.wav') else None
+        self.clear_sound = pygame.mixer.Sound('clear.wav') if os.path.exists('clear.wav') else None
         
     def new_piece(self):
         # 随机选择一种方块
@@ -123,8 +135,15 @@ class Tetris:
             self.score += 800
             
     def draw_grid(self):
+        # 绘制渐变背景
+        for y in range(SCREEN_HEIGHT):
+            color = (max(20, min(60, y//10)), 
+                    max(20, min(60, y//10)), 
+                    max(40, min(80, y//5)))
+            pygame.draw.line(self.screen, color, (0, y), (SCREEN_WIDTH, y))
+        
         # 绘制游戏区域背景
-        pygame.draw.rect(self.screen, BLACK, 
+        pygame.draw.rect(self.screen, BG_COLOR, 
                         (GAME_AREA_LEFT, 0, CELL_SIZE * GRID_WIDTH, CELL_SIZE * GRID_HEIGHT))
         # 绘制网格线
         for x in range(GRID_WIDTH + 1):
@@ -140,10 +159,18 @@ class Tetris:
         for y, row in enumerate(piece['shape']):
             for x, cell in enumerate(row):
                 if cell:
+                    # 绘制方块主体
                     pygame.draw.rect(self.screen, piece['color'], 
                                     (GAME_AREA_LEFT + (piece['x'] + x) * CELL_SIZE, 
                                      (piece['y'] + y) * CELL_SIZE, 
                                      CELL_SIZE, CELL_SIZE))
+                    # 绘制高光效果
+                    highlight = tuple(min(255, c + 40) for c in piece['color'])
+                    pygame.draw.rect(self.screen, highlight, 
+                                    (GAME_AREA_LEFT + (piece['x'] + x) * CELL_SIZE + 2, 
+                                     (piece['y'] + y) * CELL_SIZE + 2, 
+                                     CELL_SIZE - 4, CELL_SIZE//3))
+                    # 绘制边框
                     pygame.draw.rect(self.screen, WHITE, 
                                     (GAME_AREA_LEFT + (piece['x'] + x) * CELL_SIZE, 
                                      (piece['y'] + y) * CELL_SIZE, 
@@ -164,19 +191,87 @@ class Tetris:
                                      
     def draw_score(self):
         score_text = self.font.render(f'分数: {self.score}', True, WHITE)
+        level_text = self.font.render(f'等级: {self.level}', True, WHITE)
+        lines_text = self.font.render(f'行数: {self.lines_cleared}', True, WHITE)
         self.screen.blit(score_text, (GAME_AREA_LEFT + GRID_WIDTH * CELL_SIZE + 20, 30))
+        self.screen.blit(level_text, (GAME_AREA_LEFT + GRID_WIDTH * CELL_SIZE + 20, 70))
+        self.screen.blit(lines_text, (GAME_AREA_LEFT + GRID_WIDTH * CELL_SIZE + 20, 110))
         
+    def draw_start_screen(self):
+        title = self.big_font.render('俄罗斯方块', True, WHITE)
+        start_text = self.font.render('按任意键开始游戏', True, WHITE)
+        self.screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, SCREEN_HEIGHT//3))
+        self.screen.blit(start_text, (SCREEN_WIDTH//2 - start_text.get_width()//2, SCREEN_HEIGHT//2))
+
+    def draw_pause_screen(self):
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))
+        self.screen.blit(overlay, (0, 0))
+        pause_text = self.big_font.render('游戏暂停', True, WHITE)
+        continue_text = self.font.render('按P键继续', True, WHITE)
+        self.screen.blit(pause_text, (SCREEN_WIDTH//2 - pause_text.get_width()//2, SCREEN_HEIGHT//3))
+        self.screen.blit(continue_text, (SCREEN_WIDTH//2 - continue_text.get_width()//2, SCREEN_HEIGHT//2))
+
     def draw_game_over(self):
         if self.game_over:
-            text = self.font.render('游戏结束! 按R键重新开始', True, WHITE)
-            self.screen.blit(text, (GAME_AREA_LEFT + 30, SCREEN_HEIGHT // 2 - 30))
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            self.screen.blit(overlay, (0, 0))
+            game_over_text = self.big_font.render('游戏结束!', True, WHITE)
+            score_text = self.font.render(f'最终分数: {self.score}', True, WHITE)
+            restart_text = self.font.render('按R键重新开始', True, WHITE)
+            self.screen.blit(game_over_text, (SCREEN_WIDTH//2 - game_over_text.get_width()//2, SCREEN_HEIGHT//3))
+            self.screen.blit(score_text, (SCREEN_WIDTH//2 - score_text.get_width()//2, SCREEN_HEIGHT//2))
+            self.screen.blit(restart_text, (SCREEN_WIDTH//2 - restart_text.get_width()//2, SCREEN_HEIGHT//2 + 50))
             
     def run(self):
         fall_time = 0
-        fall_speed = 0.5  # 秒
+        fall_speed = 0.5  # 初始下落速度(秒)
         last_time = pygame.time.get_ticks()
         
-        while not self.game_over:
+        while True:
+            if not self.game_started:
+                self.draw_start_screen()
+                pygame.display.update()
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            return
+                        if event.type == pygame.KEYDOWN:
+                            waiting = False
+                            self.game_started = True
+                continue
+                
+            if self.game_over:
+                self.draw_game_over()
+                pygame.display.update()
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            return
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                            self.__init__()
+                            waiting = False
+                continue
+                
+            if self.paused:
+                self.draw_pause_screen()
+                pygame.display.update()
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            return
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                            self.paused = False
+                            waiting = False
+                continue
+                
             self.screen.fill(BLACK)
             
             current_time = pygame.time.get_ticks()
@@ -184,40 +279,59 @@ class Tetris:
             last_time = current_time
             fall_time += delta_time
             
+            # 根据等级调整下落速度
+            adjusted_fall_speed = max(0.05, fall_speed - (self.level - 1) * 0.05)
+            
             # 自动下落
-            if fall_time >= fall_speed:
+            if fall_time >= adjusted_fall_speed:
                 fall_time = 0
                 if self.valid_move(self.current_piece, 0, 1):
                     self.current_piece['y'] += 1
+                    if self.move_sound:
+                        self.move_sound.play()
                 else:
                     self.lock_piece()
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.game_over = True
+                    pygame.quit()
                     return
                     
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:  # 暂停游戏
+                        self.paused = not self.paused
+                    elif self.paused:
+                        continue
+                        
                     if event.key == pygame.K_LEFT and self.valid_move(self.current_piece, -1, 0):
                         self.current_piece['x'] -= 1
+                        if self.move_sound:
+                            self.move_sound.play()
                     elif event.key == pygame.K_RIGHT and self.valid_move(self.current_piece, 1, 0):
                         self.current_piece['x'] += 1
+                        if self.move_sound:
+                            self.move_sound.play()
                     elif event.key == pygame.K_DOWN and self.valid_move(self.current_piece, 0, 1):
                         self.current_piece['y'] += 1
+                        if self.move_sound:
+                            self.move_sound.play()
                     elif event.key == pygame.K_UP:
                         self.rotate_piece()
+                        if self.rotate_sound:
+                            self.rotate_sound.play()
                     elif event.key == pygame.K_SPACE:  # 硬降落
                         while self.valid_move(self.current_piece, 0, 1):
                             self.current_piece['y'] += 1
                         self.lock_piece()
-                    elif event.key == pygame.K_r and self.game_over:
-                        self.__init__()  # 重置游戏
                         
+            # 每清除10行升一级
+            if self.lines_cleared >= self.level * 10:
+                self.level += 1
+                
             self.draw_grid()
             self.draw_matrix()
             self.draw_piece(self.current_piece)
             self.draw_score()
-            self.draw_game_over()
             
             pygame.display.update()
             self.clock.tick(60)

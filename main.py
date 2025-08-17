@@ -98,6 +98,7 @@ class Calculator:
     
     def _bind_events(self):
         self.root.bind('<Configure>', self._resize_debounced)
+        self.entry.bind('<Return>', lambda e: (self.functions.calculate(self.entry.get("1.0", tk.END), self.result_var), "break"))
 
 if __name__ == "__main__":
     root = tk.Tk()
